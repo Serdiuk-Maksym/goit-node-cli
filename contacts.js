@@ -21,19 +21,41 @@ export const listContacts = async () => {
 
 export const getContactById = async (contactId) => {
   const contacts = await listContacts();
-  return contacts.find((contact) => contact.id === contactId);
+  return contacts.find((contact) => contact.id === contactId) || null;
 };
 
-export const addContact = async (contact) => {
+export const addContact = async ({ name, email, phone }) => {
   const contacts = await listContacts();
-  contacts.push(contact);
+
+  const contactExists = contacts.some(
+    (contact) =>
+      contact.name === name &&
+      contact.email === email &&
+      contact.phone === phone
+  );
+
+  if (contactExists) {
+    throw new Error('Contact with the same information already exists.');
+  }
+
+  const newContact = { name, email, phone };
+  contacts.push(newContact);
   await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+
+  return newContact;
 };
 
 export const removeContact = async (contactId) => {
   const contacts = await listContacts();
+  const contactToRemove = contacts.find((contact) => contact.id === contactId);
+
+  if (!contactToRemove) {
+    return null;
+  }
+
   const updatedContacts = contacts.filter(
     (contact) => contact.id !== contactId
   );
   await fs.writeFile(contactsPath, JSON.stringify(updatedContacts, null, 2));
+  return contactToRemove;
 };
