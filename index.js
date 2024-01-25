@@ -37,9 +37,11 @@ async function invokeAction({ action, id, name, email, phone }) {
 
       case 'remove':
         const removedContact = await removeContact(id);
-        console.log(
-          removedContact === null ? null : 'Contact removed successfully:'
-        );
+        if (removedContact === null) {
+          console.log('Contact not found.');
+        } else {
+          console.log('Contact removed successfully:', removedContact);
+        }
         break;
 
       default:
